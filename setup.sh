@@ -57,28 +57,15 @@ fi
 # ── 게이트웨이 토큰 생성 ───────────────────────────────────
 GATEWAY_TOKEN=$(openssl rand -hex 24 2>/dev/null || cat /proc/sys/kernel/random/uuid | tr -d '-')
 
-# ── Telegram 채널 설정 ─────────────────────────────────────
-TELEGRAM_BLOCK=""
-if [ -n "$TELEGRAM_BOT_TOKEN" ]; then
-  echo "📱 Telegram 봇 토큰 감지됨"
-  TELEGRAM_BLOCK=',
-  "channels": {
-    "telegram": {
-      "enabled": true,
-      "botToken": "'"${TELEGRAM_BOT_TOKEN}"'",
-      "dmPolicy": "pairing"
-    }
-  },
-  "plugins": {
-    "entries": {
-      "telegram": {
-        "enabled": true
-      }
-    }
-  }'
+# ── Telegram 토큰 확인 ─────────────────────────────────────
+if [ -z "$TELEGRAM_BOT_TOKEN" ]; then
+  echo "❌ TELEGRAM_BOT_TOKEN이 설정되지 않았습니다."
+  exit 1
 fi
+echo "📱 Telegram 봇 토큰 감지됨"
 
 # ── openclaw.json 생성 ─────────────────────────────────────
+echo "⚙️  openclaw.json 내용 추가 중..."
 cat > "$CONFIG_DIR/openclaw.json" << JSONEOF
 {
   "meta": {
@@ -93,17 +80,32 @@ cat > "$CONFIG_DIR/openclaw.json" << JSONEOF
     }
   },
   "gateway": {
-    "port": 18789,
+    "port": 8080,
     "mode": "local",
     "bind": "lan",
     "controlUi": {
-      "dangerouslyAllowHostHeaderOriginFallback": true
+      "dangerouslyAllowHostHeaderOriginFallback": true,
+      "allowInsecureAuth": true
     },
     "auth": {
       "mode": "token",
       "token": "${GATEWAY_TOKEN}"
     }
-  }${TELEGRAM_BLOCK}
+  },
+  "channels": {
+    "telegram": {
+      "enabled": true,
+      "botToken": "${TELEGRAM_BOT_TOKEN}",
+      "dmPolicy": "pairing"
+    }
+  },
+  "plugins": {
+    "entries": {
+      "telegram": {
+        "enabled": true
+      }
+    }
+  }
 }
 JSONEOF
 echo "✅ openclaw.json 생성 완료"
