@@ -18,7 +18,7 @@ flowchart TD
     H[bash run.sh<br/>→ 터미널에 Gateway Token 출력] --> I
     I[gcube 서비스 URL 브라우저 접속] --> J
     J[Overview 페이지<br/>Gateway Token 필드에 토큰 붙여넣기<br/>→ Connect 클릭] --> K
-    K{pairing required<br/>메시지 뜨는가?} -->|Yes| L
+    K{pairing required<br/>메시지 뜨는가?} -->|Yes: 첫 접속 또는 새 기기| L
     K -->|No: 이미 승인된 기기| M
     L[터미널에서 승인<br/>openclaw devices list<br/>openclaw devices approve requestId] --> M
     M[Health OK 확인 ✅] --> N
