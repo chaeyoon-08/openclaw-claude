@@ -20,19 +20,16 @@ fi
 
 # ── 게이트웨이 토큰 추출 ───────────────────────────────────
 TOKEN=$(python3 -c "import json; d=json.load(open('$CONFIG_DIR/openclaw.json')); print(d['gateway']['auth']['token'])")
-ACCESS_URL="http://localhost:8080/?token=${TOKEN}"
 
 echo ""
 echo "🦞 OpenClaw WebUI"
 echo "=============================="
 echo ""
 
-# ── 이미 실행 중인 gateway 종료 ────────────────────────────
-if pgrep -f "openclaw gateway" > /dev/null 2>&1; then
-  echo "🔄 기존 gateway 종료 중..."
-  pkill -f "openclaw gateway" 2>/dev/null || true
-  sleep 1
-fi
+# ── 이미 실행 중인 gateway 정리 ────────────────────────────
+echo "🔄 기존 gateway 정리 중..."
+pkill -9 -f "openclaw" 2>/dev/null || true
+sleep 3
 
 # ── gateway 백그라운드 실행 ────────────────────────────────
 echo "🚀 Gateway 시작 중..."
@@ -50,7 +47,10 @@ fi
 echo "✅ Gateway 실행 중 (PID: $GATEWAY_PID)"
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-printf '🌐 접속: \e]8;;%s\e\\OpenClaw WebUI 열기\e]8;;\e\\\n' "$ACCESS_URL"
+echo "🌐 gcube URL로 접속 후 Overview 페이지에서:"
+echo "   Gateway Token 옆 Password 필드에 토큰 입력 후 Connect"
+echo ""
+echo "🔑 토큰: ${TOKEN}"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "  [종료]  $ pkill -f 'openclaw gateway'"
+echo "  [종료]  $ pkill -9 -f 'openclaw'"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"

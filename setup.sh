@@ -83,9 +83,11 @@ cat > "$CONFIG_DIR/openclaw.json" << JSONEOF
     "port": 8080,
     "mode": "local",
     "bind": "lan",
+    "trustedProxies": ["127.0.0.1"],
     "controlUi": {
       "dangerouslyAllowHostHeaderOriginFallback": true,
-      "allowInsecureAuth": true
+      "allowInsecureAuth": true,
+      "allowedOrigins": ["*"]
     },
     "auth": {
       "mode": "token",
