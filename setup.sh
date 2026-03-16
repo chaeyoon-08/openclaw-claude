@@ -118,10 +118,24 @@ echo "✅ auth-profiles.json 생성 완료"
 cp .env "$CONFIG_DIR/.env"
 echo "✅ .env 복사 완료"
 
-# ── Knowledge Base 문서 복사 ───────────────────────────────
+# ── Workspace 디렉터리 생성 ────────────────────────────────
 WORKSPACE_DIR="$CONFIG_DIR/workspace"
 mkdir -p "$WORKSPACE_DIR"
 
+# ── Identity 파일 복사 ─────────────────────────────────────
+if [ -d "identity" ]; then
+  IDENTITY_COUNT=$(ls identity/*.md 2>/dev/null | wc -l)
+  if [ "$IDENTITY_COUNT" -gt 0 ]; then
+    cp identity/*.md "$WORKSPACE_DIR/" 2>/dev/null || true
+    echo "✅ Identity 파일 복사 완료 (${IDENTITY_COUNT}개)"
+  else
+    echo "ℹ️  identity/ 폴더에 .md 파일이 없습니다"
+  fi
+else
+  echo "ℹ️  identity/ 폴더가 없습니다"
+fi
+
+# ── Knowledge Base 문서 복사 ───────────────────────────────
 if [ -d "docs" ]; then
   DOCS_COUNT=$(ls docs/*.md 2>/dev/null | wc -l)
   if [ "$DOCS_COUNT" -gt 0 ]; then
