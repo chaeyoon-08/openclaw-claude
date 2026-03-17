@@ -16,10 +16,11 @@ flowchart TD
     E[git clone<br/>cd openclaw-claude] --> F
     F[cp .env.example .env<br/>nano .env에 API 키 입력] --> G
     G[bash setup.sh<br/>→ 설정 파일 자동 생성] --> H
-    H[bash run.sh<br/>→ Gateway 백그라운드 실행] --> I
-    I[Telegram 봇에 메시지 전송<br/>→ 페어링 코드 수신] --> J
-    J[터미널에서 승인<br/>openclaw pairing approve telegram 코드] --> K
-    K[Telegram 봇 정상 작동 ✅<br/>Claude AI 대화 시작]
+    H[bash run.sh<br/>→ Gateway 실행 + 토큰 출력] --> I
+    I[gcube URL 접속<br/>→ 토큰 입력 → WebUI 연결] --> J
+    J[Telegram 봇에 메시지 전송<br/>→ 페어링 코드 수신] --> K
+    K[터미널에서 승인<br/>openclaw pairing approve telegram 코드] --> L
+    L[Telegram 봇 정상 작동<br/>Claude AI 대화 시작]
 ```
 
 ---
@@ -67,6 +68,7 @@ nano .env
 ```
 
 `.env` 파일 내용:
+
 ```env
 ANTHROPIC_API_KEY=여기에_API_키_입력
 TELEGRAM_BOT_TOKEN=여기에_봇_토큰_입력
@@ -81,8 +83,8 @@ bash setup.sh
 다음 작업이 자동으로 실행됩니다:
 - openclaw NPM 패키지 전역 설치
 - `~/.openclaw/` 설정 파일 생성
-- `~/.openclaw/workspace/` 생성 및 `identity/*.md` bootstrap 파일 복사 (AGENTS.md, IDENTITY.md)
-- `docs/*.md` Knowledge Base 문서 복사
+- `identity/*.md` bootstrap 파일 → `~/.openclaw/workspace/` 복사 (AGENTS.md, IDENTITY.md)
+- `docs/*.md` Knowledge Base 문서 → `~/.openclaw/workspace/` 복사
 
 ### 4. Gateway 실행
 
@@ -90,21 +92,24 @@ bash setup.sh
 bash run.sh
 ```
 
-출력 예시:
-```
-✅ Gateway 실행 중 (PID: 12345)
+실행 후 터미널에 Gateway 토큰과 Telegram 페어링 안내가 출력됩니다.
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📱 Telegram 봇에 메시지를 보내면 페어링 코드가 발급됩니다.
+---
 
-  1. Telegram에서 @openclaw_claude_da_bot 에 메시지 전송
-  2. 봇이 보내주는 페어링 코드 복사
-  3. 아래 명령어로 승인:
-     openclaw pairing approve telegram [코드]
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-```
+## WebUI 접속
 
-### 5. Telegram 페어링
+`bash run.sh` 실행 후 출력된 토큰을 사용해 브라우저에서 접속합니다.
+
+1. gcube 워크로드 URL로 브라우저 접속
+2. Overview 페이지의 **Gateway Token** 필드에 토큰 입력
+3. **Connect** 클릭
+
+> 토큰은 `bash run.sh` 실행 시 터미널에 출력됩니다.
+> 재확인: `python3 -c "import json; d=json.load(open('$HOME/.openclaw/openclaw.json')); print(d['gateway']['auth']['token'])"`
+
+---
+
+## Telegram 페어링
 
 1. Telegram에서 생성한 봇(`@openclaw_claude_da_bot`)에 메시지 전송
 2. 봇이 보내주는 페어링 코드 복사
@@ -131,25 +136,15 @@ openclaw pairing approve telegram [코드]
 ```bash
 # 1. docs/ 폴더에 문서 추가
 docs/
-├── test_report.md
-├── user_manual.md
+├── my_document.md
 └── faq.md
 
-# 2. setup.sh 실행 (자동 복사)
+# 2. setup.sh 재실행 (자동 복사)
 bash setup.sh
-# 출력: ✅ Knowledge Base 문서 복사 완료 (3개)
 
-# 3. 복사 확인
+# 3. workspace 확인
 ls ~/.openclaw/workspace/
-# 출력: test_report.md  user_manual.md  faq.md
 ```
-
-### 검증 예시
-
-에이전트는 workspace의 문서를 참조하여 사용자 질문에 답변할 수 있습니다.
-
-**질문**: "test report의 작성 날짜는?"
-**기대 응답**: 문서 내용 기반 답변 (예: "2026년 3월 5일입니다")
 
 ---
 
@@ -157,11 +152,12 @@ ls ~/.openclaw/workspace/
 
 | 항목 | 방법 | 성공 기준 |
 |------|------|----------|
-| 1. Gateway 실행 | `bash run.sh` 후 프로세스 확인 | PID 출력, 로그에 에러 없음 |
-| 2. Telegram 연결 | 봇에 메시지 전송 | 페어링 코드 수신 |
-| 3. 페어링 승인 | `openclaw pairing approve telegram [코드]` | 승인 완료 메시지 |
-| 4. AI 응답 | 봇에 "안녕, 넌 뭘 할 수 있어?" 전송 | Claude 기반 한국어 텍스트 응답 수신 |
-| 5. 문서 기반 Q&A | 봇에 문서 관련 질문 전송 | workspace 문서 기반 정확한 답변 |
+| Gateway 실행 | `bash run.sh` 후 프로세스 확인 | PID 출력, 로그에 에러 없음 |
+| WebUI 접속 | 브라우저에서 gcube URL 접속 후 토큰 입력 | Overview 화면 정상 표시 |
+| Telegram 연결 | 봇에 메시지 전송 | 페어링 코드 수신 |
+| 페어링 승인 | `openclaw pairing approve telegram [코드]` | 승인 완료 메시지 |
+| AI 응답 | 봇에 "안녕, 넌 뭘 할 수 있어?" 전송 | Claude 기반 한국어 텍스트 응답 수신 |
+| 문서 기반 Q&A | 봇에 문서 관련 질문 전송 | workspace 문서 기반 정확한 답변 |
 
 ---
 
@@ -179,17 +175,18 @@ openclaw-claude/
 │   ├── PRD.md             ← 제품 요구사항
 │   └── SPEC.md            ← 기술 명세
 ├── setup.sh               ← 최초 1회: ~/.openclaw 설정 자동 생성
-├── run.sh                 ← gateway 실행 + Telegram 페어링 안내
+├── run.sh                 ← Gateway 실행 + WebUI 토큰 출력 + Telegram 페어링 안내
 ├── .env.example           ← API 키 형식 가이드 (git 추적됨)
 ├── .env                   ← 실제 API 키 (git 무시됨)
 └── .gitignore
 ```
 
 런타임 생성 디렉터리:
+
 ```
 ~/.openclaw/
 ├── openclaw.json          ← 게이트웨이 + 채널 설정
-├── workspace/             ← 에이전트 작업 공간 (docs/*.md 복사됨)
+├── workspace/             ← 에이전트 작업 공간 (identity/docs/*.md 복사됨)
 ├── agents/main/agent/
 │   └── auth-profiles.json ← Anthropic API 키
 └── gateway.log            ← 게이트웨이 로그
@@ -202,6 +199,7 @@ openclaw-claude/
 ### Gateway 실행 실패
 
 로그 확인:
+
 ```bash
 cat ~/.openclaw/gateway.log
 ```
@@ -226,6 +224,7 @@ bash run.sh
 ### Telegram 봇 미응답
 
 페어링 상태 확인 및 재시도:
+
 ```bash
 openclaw pairing list
 openclaw pairing approve telegram [코드]
@@ -263,6 +262,9 @@ pkill -9 -f "openclaw" 2>/dev/null || true
 
 # 설정 파일 확인
 cat ~/.openclaw/openclaw.json
+
+# workspace 파일 확인
+ls ~/.openclaw/workspace/
 ```
 
 ---
@@ -272,7 +274,7 @@ cat ~/.openclaw/openclaw.json
 | 레이어 | 기술 |
 |--------|------|
 | 런타임 | Node.js (openclaw NPM 패키지) |
-| AI 모델 | Anthropic Claude Sonnet 4.5 (`anthropic/claude-sonnet-4-5`) |
+| AI 모델 | Anthropic Claude Sonnet 4.6 (`anthropic/claude-sonnet-4-6`) |
 | 채널 | Telegram Bot API (openclaw 내장 플러그인) |
 | 인프라 | gcube 컨테이너 (`coollabsio/openclaw:latest`) |
 | 설정 관리 | `~/.openclaw/openclaw.json`, `auth-profiles.json` |

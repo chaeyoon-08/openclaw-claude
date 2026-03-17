@@ -60,7 +60,6 @@ TELEGRAM_BOT_TOKEN=여기에_봇_토큰_입력
 ```
 
 - 정확히 2줄, 빈 줄 없음
-- `GEMINI_API_KEY` 포함 금지
 
 ---
 
@@ -79,7 +78,7 @@ TELEGRAM_BOT_TOKEN=여기에_봇_토큰_입력
 | 3 | `ANTHROPIC_API_KEY` 검증 | 24-29 |
 | 4 | openclaw NPM 패키지 설치 확인 | 32-37 |
 | 5 | 설정 디렉토리 생성 (`~/.openclaw/`, `agents/main/agent/`, `sessions/`) | 40-43 |
-| 6 | 모델 고정 (`anthropic/claude-sonnet-4-5`) | 46-47 |
+| 6 | 모델 고정 (`anthropic/claude-sonnet-4-6`) | 46-47 |
 | 7 | 게이트웨이 토큰 자동 생성 (openssl rand) | 50 |
 | 8 | `TELEGRAM_BOT_TOKEN` 검증 | 53-57 |
 | 9 | `openclaw.json` 생성 | 61-99 |
@@ -93,7 +92,7 @@ TELEGRAM_BOT_TOKEN=여기에_봇_토큰_입력
 
 | 항목 | 값 | 변경 금지 |
 |------|-----|----------|
-| 모델 ID | `anthropic/claude-sonnet-4-5` | 변수화 금지 |
+| 모델 ID | `anthropic/claude-sonnet-4-6` | 변수화 금지 |
 | 게이트웨이 포트 | `8080` | gcube 워크로드 포트와 일치 |
 | 게이트웨이 모드 | `local` | |
 | 게이트웨이 바인드 | `lan` | |
@@ -213,7 +212,7 @@ TELEGRAM_BOT_TOKEN=여기에_봇_토큰_입력
   // 에이전트 기본 설정
   "agents": {
     "defaults": {
-      "model": "anthropic/claude-sonnet-4-5",   // Claude 단일 모델 (고정)
+      "model": "anthropic/claude-sonnet-4-6",   // Claude 단일 모델 (고정)
       "memorySearch": {
         "enabled": false                         // 메모리 검색 비활성화
       }
