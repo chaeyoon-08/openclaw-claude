@@ -66,6 +66,7 @@ cat > "$CONFIG_DIR/openclaw.json" << JSONEOF
   "agents": {
     "defaults": {
       "model": "anthropic/claude-sonnet-4-6",
+      "timeoutSeconds": 180,
       "memorySearch": {
         "enabled": false
       }
